@@ -32,33 +32,38 @@ private struct EqualSize: ViewModifier {
         content.overlay(GeometryReader { proxy in
             Color.clear.preference(key: SizePreferenceKey.self, value: [proxy.size])
         })
-        .frame(width: size?.width, height: size?.width)
+            .frame(width: size?.width == 0 ? nil : size?.width, height: size?.height == 0 ? nil : size?.height)
     }
 }
 
 public enum SizeReference {
     case width
     case height
+    case widthAndHeight
     case max
 }
 
 private struct EqualSizes: ViewModifier {
-    @State private var size: CGFloat?
+    @State private var size: CGSize?
     private let reference: SizeReference
     
     init(reference: SizeReference) { self.reference = reference }
     
     func body(content: Content) -> some View {
         content.onPreferenceChange(SizePreferenceKey.self, perform: { sizes in
-            self.size = sizes.map {
-                switch self.reference {
-                case .width: return $0.width
-                case .height: return $0.height
-                case .max: return  max($0.width, $0.height)
+            self.size = sizes
+                .reduce(CGSize.zero) { result, size -> CGSize in
+                    switch self.reference {
+                    case .width: return CGSize(width: max(result.width, size.width), height: 0)
+                    case .height: return CGSize(width: 0, height: max(result.height, size.height))
+                    case .widthAndHeight: return CGSize(width: max(result.width, size.width), height: max(result.height, size.height))
+                    case .max:
+                        let m = max(size.width, size.height)
+                        return CGSize(width: m, height: m)
+                    }
                 }
-            }.max()
         })
-        .environment(\.size, size.map { CGSize(width: $0, height: $0) })
+        .environment(\.size, size)
     }
 }
 
