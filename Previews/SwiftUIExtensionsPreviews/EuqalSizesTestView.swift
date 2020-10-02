@@ -21,7 +21,7 @@ struct EuqalSizesTestView: View {
             .foregroundColor(.black)
             .background(Color.yellow)
         }
-        .equalSizes(by: .max)
+        .equalSizes(by: .width)
     }
 }
 

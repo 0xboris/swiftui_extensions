@@ -32,7 +32,7 @@ private struct EqualSize: ViewModifier {
         content.overlay(GeometryReader { proxy in
             Color.clear.preference(key: SizePreferenceKey.self, value: [proxy.size])
         })
-            .frame(width: size?.width == 0 ? nil : size?.width, height: size?.height == 0 ? nil : size?.height)
+        .frame(width: size?.width == 0 ? nil : size?.width, height: size?.height == 0 ? nil : size?.height)
     }
 }
 
