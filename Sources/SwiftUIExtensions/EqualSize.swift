@@ -7,32 +7,17 @@
 
 import SwiftUI
 
-private struct SizePreferenceKey: PreferenceKey {
-    static let defaultValue: [CGSize] = []
-    static func reduce(value: inout [CGSize], nextValue: () -> [CGSize]) {
-        value.append(contentsOf: nextValue())
-    }
-}
-
-private struct SizeEnvironmentKey: EnvironmentKey {
-    static var defaultValue: CGSize? = nil
-}
-
-private extension EnvironmentValues {
-    var size: CGSize? {
-        get { self[SizeEnvironmentKey.self] }
-        set { self[SizeEnvironmentKey.self] = newValue }
-    }
-}
-
 private struct EqualSize: ViewModifier {
     @Environment(\.size) private var size
     
     func body(content: Content) -> some View {
-        content.overlay(GeometryReader { proxy in
+        content.background(GeometryReader { proxy in
             Color.clear.preference(key: SizePreferenceKey.self, value: [proxy.size])
         })
-        .frame(width: size?.width == 0 ? nil : size?.width, height: size?.height == 0 ? nil : size?.height)
+        .frame(
+            width: size?.width == 0 ? nil : size?.width,
+            height: size?.height == 0 ? nil : size?.height
+        )
     }
 }
 
@@ -68,7 +53,6 @@ private struct EqualSizes: ViewModifier {
 }
 
 extension View {
-    
     /// Call this method on views you want to be equally sized
     public func sizedEqually() -> some View {
         self.modifier(EqualSize())
@@ -77,5 +61,36 @@ extension View {
     /// Call this method on the view that contains the views you want to be equally sized
     public func equalSizes(by reference: SizeReference) -> some View {
         self.modifier(EqualSizes(reference: reference))
+    }
+}
+
+struct EuqalSizesTestView: View {
+    var body: some View {
+        VStack {
+            Text("Equal spacing test")
+            
+            HStack(spacing: 20) {
+                Group {
+                    Text("This")
+                    Text("is").font(.system(size: 50))
+                    Text("just")
+                    Text("some Text")
+                }
+                .sizedEqually()
+                .background(Color.yellow)
+            }
+            .equalSizes(by: .width)
+            .background(Color.red)
+            .foregroundColor(.black)
+            
+        }
+    }
+}
+
+struct EuqalSizesTestView_Previews: PreviewProvider {
+    static var previews: some View {
+        EuqalSizesTestView()
+            .frame(width: 400, height: 300)
+            .background(Color.white)
     }
 }
