@@ -40,7 +40,7 @@ fileprivate struct FramesCollector: ViewModifier {
     }
 }
 
-extension View {
+public extension View {
     func emitFrames(in coordinateSpace: CoordinateSpace = .global) -> some View {
         self.modifier(FramesEmitter(coordinateSpace: coordinateSpace))
     }
