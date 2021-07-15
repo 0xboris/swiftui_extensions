@@ -48,6 +48,24 @@ public extension View {
     func collectEmittedFrames(in frames: Binding<[CGRect]>) -> some View {
         self.modifier(FramesCollector(frames: frames))
     }
+    
+    func emitIdentifiableFrames<ID: Hashable>(in coordinateSpace: CoordinateSpace = .global, id: ID) -> some View {
+        self.background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(
+                        key: IdentifiableFramesPreferenceKey<ID>.self,
+                        value: [id: proxy.frame(in: coordinateSpace)]
+                )
+            }
+        )
+    }
+    
+    func collectEmittedIdentifiableFrames<ID: Hashable>(in frames: Binding<[ID: CGRect]>) -> some View {
+        self.onPreferenceChange(IdentifiableFramesPreferenceKey<ID>.self) { identifiableFrames in
+            frames.wrappedValue = identifiableFrames
+        }
+    }
 }
 
 struct FramesEmitter_Previews: PreviewProvider {

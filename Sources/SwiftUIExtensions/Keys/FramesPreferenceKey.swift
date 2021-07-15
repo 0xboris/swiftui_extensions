@@ -14,3 +14,12 @@ struct FramesPreferenceKey: PreferenceKey {
         value += nextValue()
     }
 }
+
+struct IdentifiableFramesPreferenceKey<ID: Hashable>: PreferenceKey {
+    typealias Value = [ID: CGRect]
+    static var defaultValue: Value { [ID: CGRect]() }
+    
+    static func reduce(value: inout [ID: CGRect], nextValue: () -> [ID: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { lhs, rhs in return lhs })
+    }
+}
