@@ -1,5 +1,5 @@
 //
-//  FramesEmitter.swift
+//  Frames+Emitting.swift
 //  
 //
 //  Created by Boris Gutic on 06.05.21.
