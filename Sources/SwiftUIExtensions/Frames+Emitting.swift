@@ -49,6 +49,24 @@ public extension View {
         self.modifier(FramesCollector(frames: frames))
     }
     
+    func emitFrame(in coordinateSpace: CoordinateSpace = .global) -> some View {
+        background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(
+                        key: FramePreferenceKey.self,
+                        value: proxy.frame(in: coordinateSpace)
+                    )
+            }
+        )
+    }
+    
+    func collectEmittedFrame(in frame: Binding<CGRect>) -> some View {
+        onPreferenceChange(FramePreferenceKey.self) { newFrame in
+            frame.wrappedValue = newFrame
+        }
+    }
+    
     func emitIdentifiableFrames<ID: Hashable>(in coordinateSpace: CoordinateSpace = .global, id: ID) -> some View {
         self.background(
             GeometryReader { proxy in
