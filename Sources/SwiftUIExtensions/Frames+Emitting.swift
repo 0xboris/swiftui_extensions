@@ -7,20 +7,51 @@
 
 import SwiftUI
 
-fileprivate struct FramesEmitter: ViewModifier {
+public enum FrameEmitterLocation {
+    case background
+    case overlay
+}
+
+fileprivate struct FrameEmitter: View {
     var coordinateSpace: CoordinateSpace = .global
 
-    func body(content: Content) -> some View {
-        content
-            .background(
-                GeometryReader { proxy in
-                    Color.clear
-                        .preference(
-                            key: FramesPreferenceKey.self,
-                            value: [proxy.frame(in: self.coordinateSpace)]
-                    )
-                }
+    var body: some View {
+        GeometryReader { proxy in
+            Color.clear
+                .preference(
+                    key: FramePreferenceKey.self,
+                    value: proxy.frame(in: self.coordinateSpace)
+                )
+        }
+    }
+}
+
+fileprivate struct FramesEmitter: View {
+    var coordinateSpace: CoordinateSpace = .global
+
+    var body: some View {
+        GeometryReader { proxy in
+            Color.clear
+                .preference(
+                    key: FramesPreferenceKey.self,
+                    value: [proxy.frame(in: self.coordinateSpace)]
             )
+        }
+    }
+}
+
+fileprivate struct IdentifiedFramesEmitter<ID: Hashable>: View {
+    var coordinateSpace: CoordinateSpace = .global
+    var id: ID
+
+    var body: some View {
+        GeometryReader { proxy in
+            Color.clear
+                .preference(
+                    key: IdentifiableFramesPreferenceKey<ID>.self,
+                    value: [id: proxy.frame(in: coordinateSpace)]
+            )
+        }
     }
 }
 
@@ -41,24 +72,34 @@ fileprivate struct FramesCollector: ViewModifier {
 }
 
 public extension View {
-    func emitFrames(in coordinateSpace: CoordinateSpace = .global) -> some View {
-        self.modifier(FramesEmitter(coordinateSpace: coordinateSpace))
+    @ViewBuilder
+    func emitFrames(
+        in coordinateSpace: CoordinateSpace = .global,
+        from location: FrameEmitterLocation = .background
+    ) -> some View {
+        switch location {
+        case .background:
+            background(FramesEmitter(coordinateSpace: coordinateSpace))
+        case .overlay:
+            overlay(FramesEmitter(coordinateSpace: coordinateSpace))
+        }
     }
 
     func collectEmittedFrames(in frames: Binding<[CGRect]>) -> some View {
-        self.modifier(FramesCollector(frames: frames))
+        modifier(FramesCollector(frames: frames))
     }
     
-    func emitFrame(in coordinateSpace: CoordinateSpace = .global) -> some View {
-        background(
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(
-                        key: FramePreferenceKey.self,
-                        value: proxy.frame(in: coordinateSpace)
-                    )
-            }
-        )
+    @ViewBuilder
+    func emitFrame(
+        in coordinateSpace: CoordinateSpace = .global,
+        from location: FrameEmitterLocation = .background
+    ) -> some View {
+        switch location {
+        case .background:
+            background(FrameEmitter(coordinateSpace: coordinateSpace))
+        case .overlay:
+            overlay(FrameEmitter(coordinateSpace: coordinateSpace))
+        }
     }
     
     func collectEmittedFrame(in frame: Binding<CGRect>) -> some View {
@@ -67,16 +108,18 @@ public extension View {
         }
     }
     
-    func emitIdentifiableFrames<ID: Hashable>(in coordinateSpace: CoordinateSpace = .global, id: ID) -> some View {
-        self.background(
-            GeometryReader { proxy in
-                Color.clear
-                    .preference(
-                        key: IdentifiableFramesPreferenceKey<ID>.self,
-                        value: [id: proxy.frame(in: coordinateSpace)]
-                )
-            }
-        )
+    @ViewBuilder
+    func emitIdentifiableFrames<ID: Hashable>(
+        in coordinateSpace: CoordinateSpace = .global,
+        id: ID,
+        from location: FrameEmitterLocation = .background
+    ) -> some View {
+        switch location {
+        case .background:
+            background(IdentifiedFramesEmitter(coordinateSpace: coordinateSpace, id: id))
+        case .overlay:
+            overlay(IdentifiedFramesEmitter(coordinateSpace: coordinateSpace, id: id))
+        }
     }
     
     func collectEmittedIdentifiableFrames<ID: Hashable>(in frames: Binding<[ID: CGRect]>) -> some View {
