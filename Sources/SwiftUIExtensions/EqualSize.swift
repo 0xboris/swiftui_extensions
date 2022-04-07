@@ -12,7 +12,7 @@ private struct EqualSize: ViewModifier {
     
     func body(content: Content) -> some View {
         content.background(GeometryReader { proxy in
-            Color.clear.preference(key: SizePreferenceKey.self, value: [proxy.size])
+            Color.clear.preference(key: SizesPreferenceKey.self, value: [proxy.size])
         })
         .frame(
             width: size?.width == 0 ? nil : size?.width,
@@ -35,7 +35,7 @@ private struct EqualSizes: ViewModifier {
     init(reference: SizeReference) { self.reference = reference }
     
     func body(content: Content) -> some View {
-        content.onPreferenceChange(SizePreferenceKey.self, perform: { sizes in
+        content.onPreferenceChange(SizesPreferenceKey.self, perform: { sizes in
             self.size = sizes
                 .reduce(CGSize.zero) { result, size -> CGSize in
                     switch self.reference {

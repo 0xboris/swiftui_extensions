@@ -1,16 +1,16 @@
 //
-//  SizePreferenceKey.swift
+//  File.swift
 //  
 //
-//  Created by Boris Gutic on 06.05.21.
+//  Created by Boris Gutic on 07.04.22.
 //
 
 import SwiftUI
 
-public struct SizePreferenceKey: PreferenceKey {
-    public static let defaultValue: [CGSize] = []
+struct SizePreferenceKey: PreferenceKey {
+    static let defaultValue: CGSize = .zero
     
-    public static func reduce(value: inout [CGSize], nextValue: () -> [CGSize]) {
-        value.append(contentsOf: nextValue())
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
     }
 }
