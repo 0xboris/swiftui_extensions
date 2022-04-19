@@ -44,17 +44,17 @@ public struct OriginsPublisher: View {
 }
 
 public extension View {
-    func publishOrigin(to frame: Binding<CGPoint>) -> some View {
+    func publishOrigin(to frame: Binding<CGPoint>, coordinateSpace: CoordinateSpace = .global) -> some View {
         self
-            .background(OriginPublisher(coordinateSpace: .global))
+            .background(OriginPublisher(coordinateSpace: coordinateSpace))
             .onPreferenceChange(OriginPreferenceKey.self, perform: { value in
                 frame.wrappedValue = value
             })
     }
     
-    func publishOrigins(to frame: Binding<[CGPoint]>) -> some View {
+    func publishOrigins(to frame: Binding<[CGPoint]>, coordinateSpace: CoordinateSpace = .global) -> some View {
         self
-            .background(OriginsPublisher(coordinateSpace: .global))
+            .background(OriginsPublisher(coordinateSpace: coordinateSpace))
             .onPreferenceChange(OriginsPreferenceKey.self, perform: { value in
                 frame.wrappedValue = value
             })
