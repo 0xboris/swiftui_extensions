@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-@available(iOS 14.0, *)
+@available(iOS 14.0, watchOS 7.0, *)
 public extension View {
     func validateDecimal(_ value: Binding<String>, assignTo decimalValue: Binding<Double>) -> some View {
         onChange(of: value.wrappedValue) { newValue in
